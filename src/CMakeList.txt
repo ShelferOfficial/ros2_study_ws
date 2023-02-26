@@ -1,0 +1,70 @@
+#重要な部分のみ抜粋
+#今回2種類のターゲットを作成する．そのため，add_executableおよびament_target_dependenciesは2種類ある．
+#またinstallのところに"ターゲット"も2種類となり，全てをlib/${PROJECT_NAME}にインストールするよう設定してある．
+
+
+find_package(rclcpp REQUIRED)
+find_package(example_interfaces REQUIRED)
+
+add_excutable(callback_subscriber_test
+    src/callback_main.cpp
+)
+
+ament_target_dependencies(callback_subscriber_test
+    rclcpp
+    example_interfaces
+)
+
+add_excutable(lambda_subscriber_test
+    src/lambda_main.cpp
+)
+
+ament_target_dependencies(lambda_subscriber_test
+    rclcpp
+    example_interfaces
+)
+
+install(TARGETS
+    callback_subscriber_test
+    lambda_subscriber_test
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+
+ビルド・実行
+
+ビルド
+$ cd ~/ros2_studies_ws/
+
+colcon build --symlink-installのみの場合，ワークスペース以下全てのパッケージをコンパイル・ビルドするので時間がかかる．
+--packages-up-to [パッケージ名]とすることで必要なパッケージおよび依存関係のあるパッケージのみコンパイル・ビルドできて楽．複数のパッケージを選択したい場合はスペース区切りで指定．
+$ colcon build --symlink-install --packages-up-to minimal_subscriber_ros1_like
+
+$ . install/local_setup.bash
+
+
+実行
+<terminal 1>
+$ cd ~ros2_studies_ws/
+$ . install/local_setup.bash
+$ ros2 run minimal_subscriber_ros1_like [ターゲット名]
+
+CMakeLists.txtにあるとおり，ターゲット名は以下の通り．全部やってみよう．
+
+callback_subscriber_test
+lambda_subscriber_test
+
+<terminal 2>
+$ cd ~/ros2_studies_ws/
+$ . install/local_setup.bash
+
+下記のコマンドでデータを発信("pub"lication)している
+(ros2 topic pub [トピック名] [データの型] [YAML形式で指定したデータ])
+$ ros2 topic pub /topic_test example_interfaces/String '{data: hello}'
+
+補足
+$ ros2 node list # ノード一覧が表示される
+$ ros2 interface list # メッセージ一覧が表示される
+$ ros2 interface show example_interfaces/msg/String # example_interfaces/msg/Stringの構造が表示される
+$ ros2 topic list # トピック一覧が表示される
+$ ros2 topic pub /topic_test std_msgs/String '{data: hello}'
